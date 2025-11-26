@@ -1,6 +1,7 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -29,7 +30,7 @@ function SubmitButton() {
 
 export function LoginForm() {
   const router = useRouter();
-  const [state, formAction] = useFormState(checkAndRegister, null);
+  const [state, formAction] = useActionState(checkAndRegister, null);
 
   useEffect(() => {
     if (state?.success && state.redirectUrl) {
