@@ -66,25 +66,37 @@ export async function deleteResult(id: string) {
     }
 }
 
+function escapeCsvCell(cell: string): string {
+    // If the cell contains a comma, a quote, or a newline, wrap it in double quotes.
+    if (/[",\n\r]/.test(cell)) {
+        // Within a double-quoted string, any double quote must be escaped by another double quote.
+        return `"${cell.replace(/"/g, '""')}"`;
+    }
+    return cell;
+}
+
 export async function downloadResults() {
     const participants = await getParticipants();
     const headers = ['Nombre', 'Apellido', 'Calificación', 'Fecha y Hora'];
     const rows = participants.map(p => 
         [
-            p.firstName,
-            p.lastName,
-            `${((p.score / p.total) * 100).toFixed(0)}% (${p.score}/${p.total})`,
-            new Date(p.createdAt).toLocaleString('es-ES')
-        ].join(',')
+            escapeCsvCell(p.firstName),
+            escapeCsvCell(p.lastName),
+            escapeCsvCell(`${((p.score / p.total) * 100).toFixed(0)}% (${p.score}/${p.total})`),
+            escapeCsvCell(new Date(p.createdAt).toLocaleString('es-ES'))
+        ].join(';')
     );
 
-    const csvContent = [headers.join(','), ...rows].join('\n');
+    const csvContent = [headers.join(';'), ...rows].join('\n');
     
-    return new Response(csvContent, {
+    // Add BOM for Excel to recognize UTF-8
+    const bom = '\uFEFF';
+
+    return new Response(bom + csvContent, {
         status: 200,
         headers: {
             'Content-Disposition': `attachment; filename="qweek-results.csv"`,
-            'Content-Type': 'text/csv',
+            'Content-Type': 'text/csv;charset=utf-8',
         },
     });
 }

@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'QWeek Claims Challenge',
+  title: 'QWeek Reclamos de Clientes',
   description: 'Un juego para la jornada de calidad.',
 };
 

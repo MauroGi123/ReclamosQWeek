@@ -31,7 +31,7 @@ export function GameController() {
 
   const {shuffledRound2Options, shuffledRound2Questions} = useMemo(() => {
     const questions = shuffle(round2Data);
-    const options = shuffle(round2Data).map(item => ({ value: item.planDeAccion, label: item.planDeAccion.substring(0, 50) + (item.planDeAccion.length > 50 ? '...' : '') }));
+    const options = shuffle(round2Data).map(item => ({ value: item.planDeAccion, label: item.planDeAccion }));
     return { shuffledRound2Options: options, shuffledRound2Questions: questions };
   }, []);
   
@@ -82,7 +82,7 @@ export function GameController() {
       return (
         <GameRound
           roundNumber={1}
-          title="Unir reclamos con cantidad"
+          title="Unir el motivo con la CANTIDAD de reclamos"
           questions={shuffledRound1Questions.map(q => ({ id: q.id, text: q.motivo }))}
           options={shuffledRound1Options}
           onSubmit={handleRound1Submit}
@@ -104,7 +104,7 @@ export function GameController() {
         return (
             <GameRound
               roundNumber={2}
-              title="Unir motivo con plan de acción"
+              title="Unir el motivo con su PLAN DE ACCIÓN"
               questions={shuffledRound2Questions.map(q => ({ id: q.id, text: q.motivo }))}
               options={shuffledRound2Options}
               onSubmit={handleRound2Submit}

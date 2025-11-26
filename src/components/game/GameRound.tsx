@@ -49,12 +49,12 @@ export default function GameRound({ roundNumber, title, questions, options, onSu
                 {question.text}
               </Label>
               <Select onValueChange={(value) => handleSelect(question.id, value)}>
-                <SelectTrigger id={`select-${question.id}`} className="w-full">
-                  <SelectValue placeholder="Selecciona una opción..." />
+                <SelectTrigger id={`select-${question.id}`} className="w-full h-auto min-h-10">
+                  <SelectValue placeholder="Selecciona una opción..." className="whitespace-normal" />
                 </SelectTrigger>
                 <SelectContent>
                   {options.map((option, index) => (
-                    <SelectItem key={index} value={option.value}>
+                    <SelectItem key={index} value={option.value} className="whitespace-normal">
                       {option.label}
                     </SelectItem>
                   ))}
