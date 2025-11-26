@@ -3,11 +3,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import type { Round1Item, Round2Item } from "@/lib/types";
 
-type Question = {
-    id: string;
-    motivo: string;
-}
+type Question = Round1Item | Round2Item;
+
 
 interface RoundResultProps {
   title: string;

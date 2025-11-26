@@ -48,7 +48,7 @@ export default function GameRound({ roundNumber, title, questions, options, onSu
               <Label htmlFor={`select-${question.id}`} className="font-semibold text-base">
                 {question.text}
               </Label>
-              <Select onValueChange={(value) => handleSelect(question.id, value)}>
+              <Select onValueChange={(value) => handleSelect(question.id, value)} value={answers[question.id] || ""}>
                 <SelectTrigger id={`select-${question.id}`} className="w-full h-auto min-h-10">
                   <SelectValue placeholder="Selecciona una opción..." className="whitespace-normal" />
                 </SelectTrigger>
