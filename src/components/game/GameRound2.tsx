@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -22,28 +22,48 @@ export default function GameRound2({ questions, answers, onSubmit }: GameRound2P
   const [connections, setConnections] = useState<Connection[]>([]);
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
   const [linePreview, setLinePreview] = useState<{ start: Point; end: Point } | null>(null);
+  const [itemPositions, setItemPositions] = useState<Record<string, Point>>({});
 
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Record<string, HTMLDivElement>>({});
 
-  const getItemCenter = (id: string): Point | null => {
-    const elem = itemRefs.current[id];
+  const calculatePositions = useCallback(() => {
+    const newPositions: Record<string, Point> = {};
     const container = containerRef.current;
-    if (!elem || !container) return null;
-
-    const elemRect = elem.getBoundingClientRect();
+    if (!container) return;
+    
     const containerRect = container.getBoundingClientRect();
 
-    return {
-      x: elemRect.left - containerRect.left + elemRect.width / 2,
-      y: elemRect.top - containerRect.top + elemRect.height / 2,
-    };
-  };
+    for (const id in itemRefs.current) {
+        const elem = itemRefs.current[id];
+        if (elem) {
+            const elemRect = elem.getBoundingClientRect();
+            newPositions[id] = {
+                x: elemRect.left - containerRect.left + elemRect.width / 2,
+                y: elemRect.top - containerRect.top + elemRect.height / 2,
+            };
+        }
+    }
+    setItemPositions(newPositions);
+  }, []);
+
+  useEffect(() => {
+      calculatePositions();
+      window.addEventListener('resize', calculatePositions);
+      return () => window.removeEventListener('resize', calculatePositions);
+  }, [calculatePositions]);
+  
+  useEffect(() => {
+    // Recalculate on initial render and when questions/answers change
+    const timeoutId = setTimeout(calculatePositions, 50);
+    return () => clearTimeout(timeoutId);
+  }, [questions, answers, calculatePositions]);
+
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (selectedQuestion) {
-        const startPoint = getItemCenter(selectedQuestion);
+      if (selectedQuestion && itemPositions[selectedQuestion]) {
+        const startPoint = itemPositions[selectedQuestion];
         const container = containerRef.current;
         if (startPoint && container) {
             const containerRect = container.getBoundingClientRect();
@@ -57,7 +77,7 @@ export default function GameRound2({ questions, answers, onSubmit }: GameRound2P
 
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [selectedQuestion]);
+  }, [selectedQuestion, itemPositions]);
 
   const handleQuestionClick = (questionId: string) => {
     if (selectedQuestion === questionId) {
@@ -70,8 +90,9 @@ export default function GameRound2({ questions, answers, onSubmit }: GameRound2P
 
   const handleAnswerClick = (answerId: string) => {
     if (selectedQuestion) {
-       // Remove any existing connection from the selected question
-       // AND remove any existing connection to the selected answer.
+       // A question can only be connected to one answer.
+       // An answer can only be connected from one question.
+       // So, remove any existing connections from the selected question OR to the selected answer.
        const newConnections = connections.filter(c => c.from !== selectedQuestion && c.to !== answerId);
        
        // Add the new connection
@@ -97,11 +118,14 @@ export default function GameRound2({ questions, answers, onSubmit }: GameRound2P
   };
 
   const getLineCoordinates = (connection: Connection) => {
-    const fromPoint = getItemCenter(connection.from);
-    const toPoint = getItemCenter(connection.to);
+    const fromPoint = itemPositions[connection.from];
+    const toPoint = itemPositions[connection.to];
     if (!fromPoint || !toPoint) return null;
     return { x1: fromPoint.x, y1: fromPoint.y, x2: toPoint.x, y2: toPoint.y };
   };
+  
+  const isQuestionConnected = (qId: string) => connections.some(c => c.from === qId);
+  const isAnswerConnected = (aId: string) => connections.some(c => c.to === aId);
 
   return (
     <Card className="w-full max-w-6xl shadow-lg animate-in fade-in duration-500">
@@ -121,11 +145,9 @@ export default function GameRound2({ questions, answers, onSubmit }: GameRound2P
                   onClick={() => handleQuestionClick(q.id)}
                   className={cn(
                     "p-3 border rounded-lg cursor-pointer transition-all duration-200 text-sm flex items-center justify-center text-center min-h-[100px]",
-                    selectedQuestion === q.id 
-                        ? "bg-primary text-primary-foreground border-primary ring-2 ring-primary ring-offset-2"
-                        : connections.some(c => c.from === q.id) 
-                            ? "bg-accent/30 border-accent text-accent-foreground"
-                            : "bg-card hover:bg-muted"
+                    "bg-card hover:bg-muted",
+                    selectedQuestion === q.id && "ring-2 ring-primary ring-offset-2",
+                    isQuestionConnected(q.id) && "bg-accent/30 border-accent"
                   )}
                 >
                   {q.text}
@@ -142,9 +164,8 @@ export default function GameRound2({ questions, answers, onSubmit }: GameRound2P
                   onClick={() => handleAnswerClick(a.id)}
                   className={cn(
                     "p-3 border rounded-lg cursor-pointer transition-colors duration-200 text-sm flex items-center min-h-[100px]",
-                    connections.some(c => c.to === a.id)
-                      ? "bg-accent/30 border-accent text-accent-foreground"
-                      : "bg-card hover:bg-muted"
+                    "bg-card hover:bg-muted",
+                    isAnswerConnected(a.id) && "bg-accent/30 border-accent"
                   )}
                   style={{ whiteSpace: 'pre-wrap' }}
                 >
@@ -161,13 +182,13 @@ export default function GameRound2({ questions, answers, onSubmit }: GameRound2P
                 <line key={index} {...coords} strokeWidth="3" className="stroke-primary" />
               ) : null;
             })}
-            {linePreview && (
-                <line {...linePreview.start} x2={linePreview.end.x} y2={linePreview.end.y} strokeWidth="2" strokeDasharray="5,5" className="stroke-primary/70" />
+            {linePreview && linePreview.start && (
+                <line x1={linePreview.start.x} y1={linePreview.start.y} x2={linePreview.end.x} y2={linePreview.end.y} strokeWidth="2" strokeDasharray="5,5" className="stroke-primary/70" />
             )}
           </svg>
 
         </CardContent>
-        <CardFooter>
+        <CardFooter className="pt-8">
           <Button type="submit" className="w-full md:w-auto ml-auto" disabled={connections.length < questions.length}>
             Verificar Respuestas
           </Button>
