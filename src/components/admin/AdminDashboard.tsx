@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Participant } from "@/lib/types";
 import {
   Table,
@@ -29,6 +29,22 @@ import {
 
 interface AdminDashboardProps {
   initialResults: Participant[];
+}
+
+function ClientFormattedDate({ dateString }: { dateString: string }) {
+  const [formattedDate, setFormattedDate] = useState('');
+
+  useEffect(() => {
+    // This will run only on the client, after hydration
+    setFormattedDate(new Date(dateString).toLocaleString('es-ES'));
+  }, [dateString]);
+
+  // Render a placeholder on the server and initial client render
+  if (!formattedDate) {
+    return null;
+  }
+
+  return <>{formattedDate}</>;
 }
 
 export function AdminDashboard({ initialResults }: AdminDashboardProps) {
@@ -91,7 +107,9 @@ export function AdminDashboard({ initialResults }: AdminDashboardProps) {
                     <TableCell className="text-center">
                       {`${((p.score / p.total) * 100).toFixed(0)}% (${p.score}/${p.total})`}
                     </TableCell>
-                    <TableCell>{new Date(p.createdAt).toLocaleString('es-ES')}</TableCell>
+                    <TableCell>
+                      <ClientFormattedDate dateString={p.createdAt} />
+                    </TableCell>
                     <TableCell className="text-right">
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
