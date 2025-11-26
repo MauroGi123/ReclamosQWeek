@@ -60,28 +60,19 @@ export default function GameRound2({ questions, answers, onSubmit }: GameRound2P
   }, [selectedQuestion]);
 
   const handleQuestionClick = (questionId: string) => {
-    // If clicking the same question, deselect it.
-    if(selectedQuestion === questionId) {
+    if (selectedQuestion === questionId) {
         setSelectedQuestion(null);
         setLinePreview(null);
         return;
     }
-
-    // If there's an existing connection from this question, remove it before starting a new one.
-    const existingConnectionIndex = connections.findIndex(c => c.from === questionId);
-    if (existingConnectionIndex > -1) {
-        const newConnections = [...connections];
-        newConnections.splice(existingConnectionIndex, 1);
-        setConnections(newConnections);
-    }
-
     setSelectedQuestion(questionId);
   };
 
   const handleAnswerClick = (answerId: string) => {
     if (selectedQuestion) {
-       // If this answer is already connected to another question, remove that old connection.
-       const newConnections = connections.filter(c => c.to !== answerId);
+       // Remove any existing connection from the selected question
+       // AND remove any existing connection to the selected answer.
+       const newConnections = connections.filter(c => c.from !== selectedQuestion && c.to !== answerId);
        
        // Add the new connection
        newConnections.push({ from: selectedQuestion, to: answerId });
@@ -119,17 +110,17 @@ export default function GameRound2({ questions, answers, onSubmit }: GameRound2P
         <CardDescription>Unir el motivo con su PLAN DE ACCIÓN correspondiente. Haz clic en un motivo y luego en un plan de acción para unirlos.</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
-        <CardContent ref={containerRef} className="relative pb-8">
+        <CardContent ref={containerRef} className="relative p-8">
           <div className="grid grid-cols-2 gap-x-16 gap-y-4">
             {/* Questions Column */}
-            <div className="space-y-4 flex flex-col">
+            <div className="space-y-4 flex flex-col justify-around">
               {questions.map(q => (
                 <div
                   key={q.id}
                   ref={el => { if (el) itemRefs.current[q.id] = el }}
                   onClick={() => handleQuestionClick(q.id)}
                   className={cn(
-                    "p-3 border rounded-lg cursor-pointer transition-all duration-200 text-sm flex-1 flex items-center justify-center text-center",
+                    "p-3 border rounded-lg cursor-pointer transition-all duration-200 text-sm flex items-center justify-center text-center min-h-[100px]",
                     selectedQuestion === q.id 
                         ? "bg-primary text-primary-foreground border-primary ring-2 ring-primary ring-offset-2"
                         : connections.some(c => c.from === q.id) 
@@ -143,14 +134,14 @@ export default function GameRound2({ questions, answers, onSubmit }: GameRound2P
             </div>
 
             {/* Answers Column */}
-            <div className="space-y-4 flex flex-col">
+            <div className="space-y-4 flex flex-col justify-around">
               {answers.map(a => (
                 <div
                   key={a.id}
                   ref={el => { if (el) itemRefs.current[a.id] = el }}
                   onClick={() => handleAnswerClick(a.id)}
                   className={cn(
-                    "p-3 border rounded-lg cursor-pointer transition-colors duration-200 text-sm flex-1 flex items-center",
+                    "p-3 border rounded-lg cursor-pointer transition-colors duration-200 text-sm flex items-center min-h-[100px]",
                     connections.some(c => c.to === a.id)
                       ? "bg-accent/30 border-accent text-accent-foreground"
                       : "bg-card hover:bg-muted"
