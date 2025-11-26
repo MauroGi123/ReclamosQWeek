@@ -6,20 +6,13 @@ import GameRound from "./GameRound";
 import RoundResult from "./RoundResult";
 import FinalSummary from "./FinalSummary";
 import { saveResult } from "@/lib/actions";
-import GameRound2 from "./GameRound2";
 
 type GameState = "round1" | "result1" | "round2" | "result2" | "final";
 
-interface ShuffledRound1Data {
+interface ShuffledData {
   questions: { id: string; text: string; }[];
   options: { value: string; label: string; }[];
 }
-
-interface ShuffledRound2Data {
-    questions: { id: string; text: string; }[];
-    answers: { id: string; text: string; }[];
-}
-
 
 export function GameController() {
   const searchParams = useSearchParams();
@@ -32,43 +25,45 @@ export function GameController() {
   const [round2Answers, setRound2Answers] = useState<Record<string, string>>({});
   const [scores, setScores] = useState({ round1: 0, round2: 0 });
 
-  const [shuffledRound1Data, setShuffledRound1Data] = useState<ShuffledRound1Data | null>(null);
-  const [shuffledRound2Data, setShuffledRound2Data] = useState<ShuffledRound2Data | null>(null);
+  const [shuffledRound1Data, setShuffledRound1Data] = useState<ShuffledData | null>(null);
+  const [shuffledRound2Data, setShuffledRound2Data] = useState<ShuffledData | null>(null);
 
-  const originalRound1Questions = useMemo(() => round1Data, []);
-  const originalRound2Questions = useMemo(() => round2Data, []);
+  const originalRound1Data = useMemo(() => round1Data, []);
+  const originalRound2Data = useMemo(() => round2Data, []);
 
-  useEffect(() => {
-    const questions = shuffle(originalRound1Questions);
-    const options = shuffle(originalRound1Questions).map(item => ({ value: item.cantidad.toString(), label: item.cantidad.toString() }));
-    const uniqueOptions = Array.from(new Map(options.map(item => [item.label, item])).values());
-    setShuffledRound1Data({ questions: questions.map(q => ({ id: q.id, text: q.motivo })), options: uniqueOptions });
-
-    const round2Questions = shuffle(originalRound2Questions);
-    const round2Answers = shuffle(originalRound2Questions).map(item => ({ id: item.id, text: item.planDeAccion }));
-    setShuffledRound2Data({ questions: round2Questions.map(q => ({id: q.id, text: q.motivo})), answers: round2Answers });
-
-  }, [originalRound1Questions, originalRound2Questions]);
-  
   useEffect(() => {
     if (!firstName || !lastName) {
       router.replace('/');
     }
   }, [firstName, lastName, router]);
+  
+  useEffect(() => {
+    // Round 1
+    const r1Questions = shuffle(originalRound1Data);
+    const r1Options = shuffle(originalRound1Data).map(item => ({ value: item.cantidad.toString(), label: item.cantidad.toString() }));
+    const r1UniqueOptions = Array.from(new Map(r1Options.map(item => [item.label, item])).values());
+    setShuffledRound1Data({ questions: r1Questions.map(q => ({ id: q.id, text: q.motivo })), options: r1UniqueOptions });
+
+    // Round 2
+    const r2Questions = shuffle(originalRound2Data);
+    const r2Options = shuffle(originalRound2Data).map(item => ({ value: item.id, label: item.planDeAccion }));
+    setShuffledRound2Data({ questions: r2Questions.map(q => ({id: q.id, text: q.motivo})), options: r2Options });
+  }, [originalRound1Data, originalRound2Data]);
+
 
   if (!shuffledRound1Data || !shuffledRound2Data) {
     return <div className="flex-grow flex items-center justify-center">Cargando juego...</div>;
   }
 
   const { questions: shuffledRound1Questions, options: shuffledRound1Options } = shuffledRound1Data;
-  const { questions: shuffledRound2Questions, answers: shuffledRound2Answers } = shuffledRound2Data;
-  const totalQuestions = shuffledRound1Questions.length + shuffledRound2Questions.length;
+  const { questions: shuffledRound2Questions, options: shuffledRound2Options } = shuffledRound2Data;
+  const totalQuestions = originalRound1Data.length + originalRound2Data.length;
 
 
   const handleRound1Submit = (answers: Record<string, string>) => {
     setRound1Answers(answers);
     let score = 0;
-    originalRound1Questions.forEach(item => {
+    originalRound1Data.forEach(item => {
       if (answers[item.id] === item.cantidad.toString()) {
         score++;
       }
@@ -80,7 +75,7 @@ export function GameController() {
   const handleRound2Submit = (answers: Record<string, string>) => {
     setRound2Answers(answers);
     let score = 0;
-    originalRound2Questions.forEach(item => {
+    originalRound2Data.forEach(item => {
         // The answer for a question (motivo) is the ID of the selected action plan
       if (answers[item.id] === item.id) {
         score++;
@@ -115,47 +110,42 @@ export function GameController() {
       return (
         <RoundResult
           title="Resultados Ronda 1"
-          questions={originalRound1Questions}
+          questions={originalRound1Data}
           userAnswers={round1Answers}
-          correctAnswers={Object.fromEntries(originalRound1Questions.map(item => [item.id, item.cantidad.toString()]))}
+          correctAnswers={Object.fromEntries(originalRound1Data.map(item => [item.id, item.cantidad.toString()]))}
           score={scores.round1}
-          total={shuffledRound1Questions.length}
+          total={originalRound1Data.length}
           onNext={() => setGameState("round2")}
         />
       );
     case "round2":
         return (
-            <GameRound2
+            <GameRound
+              roundNumber={2}
+              title="Unir el motivo con su PLAN DE ACCIÓN correspondiente"
               questions={shuffledRound2Questions}
-              answers={shuffledRound2Answers}
+              options={shuffledRound2Options}
               onSubmit={handleRound2Submit}
             />
         );
     case "result2":
-        const correctRound2Answers = Object.fromEntries(originalRound2Questions.map(item => [item.id, item.planDeAccion]));
+        const correctRound2Answers = Object.fromEntries(originalRound2Data.map(item => [item.id, item.planDeAccion]));
         
-        // We need to map the answer IDs from round 2 to the actual text for the results screen
         const mappedUserAnswers: Record<string, string> = {};
         for(const questionId in round2Answers) {
             const answerId = round2Answers[questionId];
-            const matchingAnswer = originalRound2Questions.find(item => item.id === answerId);
+            const matchingAnswer = originalRound2Data.find(item => item.id === answerId);
             mappedUserAnswers[questionId] = matchingAnswer ? matchingAnswer.planDeAccion : "No respondida";
         }
-
-        const originalQuestionsForRound2Result = originalRound2Questions.sort((a,b) => {
-            const aIndex = shuffledRound2Questions.findIndex(q => q.id === a.id);
-            const bIndex = shuffledRound2Questions.findIndex(q => q.id === b.id);
-            return aIndex - bIndex;
-        });
 
         return (
             <RoundResult
               title="Resultados Ronda 2"
-              questions={originalQuestionsForRound2Result}
+              questions={originalRound2Data}
               userAnswers={mappedUserAnswers}
               correctAnswers={correctRound2Answers}
               score={scores.round2}
-              total={shuffledRound2Questions.length}
+              total={originalRound2Data.length}
               onNext={handleFinishGame}
               nextButtonText="Finalizar"
             />

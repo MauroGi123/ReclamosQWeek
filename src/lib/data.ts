@@ -25,7 +25,7 @@ export const round2Data: Round2Item[] = [
     id: 'r2-3',
     motivo: 'Papel dañado dentro de caja de lámina',
     planDeAccion:
-      'Capacitar a personal de logìsitica y proceso involucrado en el empaque de producto\nReforzar trazabilidad en material de empaque\nRevisar LUPs faltantes para recepciòn, manejo y control de material de empaque',
+      'Capacitar a personal de logística y proceso involucrado en el empaque de producto\nReforzar trazabilidad en material de empaque\nRevisar LUPs faltantes para recepción, manejo y control de material de empaque',
   },
   {
     id: 'r2-4',

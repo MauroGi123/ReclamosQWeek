@@ -34,6 +34,8 @@ export default function GameRound({ roundNumber, title, questions, options, onSu
     e.preventDefault();
     onSubmit(answers);
   };
+  
+  const allAnswered = questions.length > 0 && questions.every(q => answers[q.id]);
 
   return (
     <Card className="w-full max-w-4xl shadow-lg animate-in fade-in duration-500">
@@ -49,13 +51,13 @@ export default function GameRound({ roundNumber, title, questions, options, onSu
                 {question.text}
               </Label>
               <Select onValueChange={(value) => handleSelect(question.id, value)} value={answers[question.id] || ""}>
-                <SelectTrigger id={`select-${question.id}`} className="w-full h-auto min-h-10">
+                <SelectTrigger id={`select-${question.id}`} className="w-full h-auto min-h-10 text-left">
                   <SelectValue placeholder="Selecciona una opción..." className="whitespace-normal" />
                 </SelectTrigger>
                 <SelectContent>
                   {options.map((option, index) => (
-                    <SelectItem key={index} value={option.value} className="whitespace-normal">
-                      {option.label}
+                    <SelectItem key={index} value={option.value} className="whitespace-normal py-2">
+                      <div style={{ whiteSpace: 'pre-wrap' }}>{option.label}</div>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -64,7 +66,7 @@ export default function GameRound({ roundNumber, title, questions, options, onSu
           ))}
         </CardContent>
         <CardFooter>
-          <Button type="submit" className="w-full md:w-auto ml-auto">
+          <Button type="submit" className="w-full md:w-auto ml-auto" disabled={!allAnswered}>
             Verificar Respuestas
           </Button>
         </CardFooter>
