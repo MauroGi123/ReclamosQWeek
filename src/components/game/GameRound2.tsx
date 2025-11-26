@@ -80,13 +80,16 @@ export default function GameRound2({ questions, answers, onSubmit }: GameRound2P
 
   const handleAnswerClick = (answerId: string) => {
     if (selectedQuestion) {
-       // Prevent connecting an answer to multiple questions
-      const isAnswerAlreadyConnected = connections.some(c => c.to === answerId);
-      if(isAnswerAlreadyConnected) return;
+       // If this answer is already connected to another question, remove that old connection.
+       const newConnections = connections.filter(c => c.to !== answerId);
+       
+       // Add the new connection
+       newConnections.push({ from: selectedQuestion, to: answerId });
+       setConnections(newConnections);
 
-      setConnections(prev => [...prev, { from: selectedQuestion, to: answerId }]);
-      setSelectedQuestion(null);
-      setLinePreview(null);
+       // Reset selection
+       setSelectedQuestion(null);
+       setLinePreview(null);
     }
   };
 
@@ -94,9 +97,6 @@ export default function GameRound2({ questions, answers, onSubmit }: GameRound2P
     e.preventDefault();
     const result: Record<string, string> = {};
     connections.forEach(conn => {
-        // The question ID is the 'motivo', the answer ID is the 'planDeAccion'
-        // For scoring, we need to associate the question's ID with the answer's ID.
-        // The GameController expects the answer to be the ID that corresponds to the correct question.
         const answerItem = answers.find(a => a.id === conn.to);
         if (answerItem) {
              result[conn.from] = answerItem.id;

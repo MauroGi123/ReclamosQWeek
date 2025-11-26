@@ -27,7 +27,7 @@ export default function FinalSummary({ score, total }: FinalSummaryProps) {
             <PartyPopper className="h-12 w-12 text-accent" />
         </div>
         <CardTitle className="text-3xl font-bold mt-4">¡Juego Completado!</CardTitle>
-        <CardDescription>Gracias por participar en el QWeek Claims Challenge.</CardDescription>
+        <CardDescription>Gracias por participar en la QWeek.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-xl">Tu desempeño final fue:</p>
