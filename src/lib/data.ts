@@ -19,13 +19,13 @@ export const round2Data: Round2Item[] = [
     id: 'r2-2',
     motivo: 'NTRM piedras en caja de lámina',
     planDeAccion:
-      'se solicita a CTJ plan de acción al respecto\nse da seguimiento a Plan de acción de CTJ',
+      'Se solicita a CTJ plan de acción al respecto\nSe da seguimiento a Plan de acción de CTJ',
   },
   {
     id: 'r2-3',
     motivo: 'Papel dañado dentro de caja de lámina',
     planDeAccion:
-      'capacitar a personal de logìsitica y proceso involucrado en el empaque de producto\nreforzar trazabilidad en material de empaque\nrevisar LUPs faltantes para recepciòn, manejo y control de material de empaque',
+      'Capacitar a personal de logìsitica y proceso involucrado en el empaque de producto\nReforzar trazabilidad en material de empaque\nRevisar LUPs faltantes para recepciòn, manejo y control de material de empaque',
   },
   {
     id: 'r2-4',

@@ -119,17 +119,17 @@ export default function GameRound2({ questions, answers, onSubmit }: GameRound2P
         <CardDescription>Unir el motivo con su PLAN DE ACCIÓN correspondiente. Haz clic en un motivo y luego en un plan de acción para unirlos.</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
-        <CardContent ref={containerRef} className="relative">
+        <CardContent ref={containerRef} className="relative pb-8">
           <div className="grid grid-cols-2 gap-x-16 gap-y-4">
             {/* Questions Column */}
-            <div className="space-y-4">
+            <div className="space-y-4 flex flex-col">
               {questions.map(q => (
                 <div
                   key={q.id}
                   ref={el => { if (el) itemRefs.current[q.id] = el }}
                   onClick={() => handleQuestionClick(q.id)}
                   className={cn(
-                    "p-3 border rounded-lg cursor-pointer transition-all duration-200 text-sm h-full flex items-center justify-center text-center",
+                    "p-3 border rounded-lg cursor-pointer transition-all duration-200 text-sm flex-1 flex items-center justify-center text-center",
                     selectedQuestion === q.id 
                         ? "bg-primary text-primary-foreground border-primary ring-2 ring-primary ring-offset-2"
                         : connections.some(c => c.from === q.id) 
@@ -143,14 +143,14 @@ export default function GameRound2({ questions, answers, onSubmit }: GameRound2P
             </div>
 
             {/* Answers Column */}
-            <div className="space-y-4">
+            <div className="space-y-4 flex flex-col">
               {answers.map(a => (
                 <div
                   key={a.id}
                   ref={el => { if (el) itemRefs.current[a.id] = el }}
                   onClick={() => handleAnswerClick(a.id)}
                   className={cn(
-                    "p-3 border rounded-lg cursor-pointer transition-colors duration-200 text-sm h-full flex items-center",
+                    "p-3 border rounded-lg cursor-pointer transition-colors duration-200 text-sm flex-1 flex items-center",
                     connections.some(c => c.to === a.id)
                       ? "bg-accent/30 border-accent text-accent-foreground"
                       : "bg-card hover:bg-muted"
