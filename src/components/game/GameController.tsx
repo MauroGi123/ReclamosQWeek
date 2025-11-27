@@ -2,12 +2,13 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { round1Data, round2Data, shuffle } from "@/lib/data";
+import GameIntro from "./GameIntro";
 import GameRound from "./GameRound";
 import RoundResult from "./RoundResult";
 import FinalSummary from "./FinalSummary";
 import { saveResult } from "@/lib/actions";
 
-type GameState = "round1" | "result1" | "round2" | "result2" | "final";
+type GameState = "intro" | "round1" | "result1" | "round2" | "result2" | "final";
 
 interface ShuffledData {
   questions: { id: string; text: string; }[];
@@ -20,7 +21,7 @@ export function GameController() {
   const firstName = searchParams.get("firstName") || "";
   const lastName = searchParams.get("lastName") || "";
   
-  const [gameState, setGameState] = useState<GameState>("round1");
+  const [gameState, setGameState] = useState<GameState>("intro");
   const [round1Answers, setRound1Answers] = useState<Record<string, string>>({});
   const [round2Answers, setRound2Answers] = useState<Record<string, string>>({});
   const [scores, setScores] = useState({ round1: 0, round2: 0 });
@@ -37,22 +38,23 @@ export function GameController() {
   useEffect(() => {
     if (!firstName || !lastName) {
       router.replace('/');
-    } else {
-      timerIsActive.current = true;
     }
   }, [firstName, lastName, router]);
   
   useEffect(() => {
-    // Round 1
-    const r1Questions = shuffle(originalRound1Data);
-    const r1Options = shuffle(originalRound1Data).map(item => ({ value: item.cantidad.toString(), label: item.cantidad.toString() }));
-    const r1UniqueOptions = Array.from(new Map(r1Options.map(item => [item.label, item])).values());
-    setShuffledRound1Data({ questions: r1Questions.map(q => ({ id: q.id, text: q.motivo })), options: r1UniqueOptions });
+    // Only shuffle on the client to avoid hydration issues
+    if (typeof window !== 'undefined') {
+        // Round 1
+        const r1Questions = shuffle(originalRound1Data);
+        const r1Options = shuffle(originalRound1Data).map(item => ({ value: item.cantidad.toString(), label: item.cantidad.toString() }));
+        const r1UniqueOptions = Array.from(new Map(r1Options.map(item => [item.label, item])).values());
+        setShuffledRound1Data({ questions: r1Questions.map(q => ({ id: q.id, text: q.motivo })), options: r1UniqueOptions });
 
-    // Round 2
-    const r2Questions = shuffle(originalRound2Data);
-    const r2Options = shuffle(originalRound2Data).map(item => ({ value: item.id, label: item.planDeAccion }));
-    setShuffledRound2Data({ questions: r2Questions.map(q => ({id: q.id, text: q.motivo})), options: r2Options });
+        // Round 2
+        const r2Questions = shuffle(originalRound2Data);
+        const r2Options = shuffle(originalRound2Data).map(item => ({ value: item.id, label: item.planDeAccion }));
+        setShuffledRound2Data({ questions: r2Questions.map(q => ({id: q.id, text: q.motivo})), options: r2Options });
+    }
   }, [originalRound1Data, originalRound2Data]);
 
   useEffect(() => {
@@ -74,6 +76,10 @@ export function GameController() {
   const { questions: shuffledRound2Questions, options: shuffledRound2Options } = shuffledRound2Data;
   const totalQuestions = originalRound1Data.length + originalRound2Data.length;
 
+  const handleStartGame = () => {
+    timerIsActive.current = true;
+    setGameState("round1");
+  };
 
   const handleRound1Submit = (answers: Record<string, string>) => {
     timerIsActive.current = false;
@@ -119,6 +125,8 @@ export function GameController() {
   }
 
   switch (gameState) {
+    case "intro":
+        return <GameIntro onStart={handleStartGame} playerName={`${firstName} ${lastName}`} />;
     case "round1":
       return (
         <GameRound
@@ -176,7 +184,7 @@ export function GameController() {
             />
         );
     case "final":
-        return <FinalSummary score={scores.round1 + scores.round2} total={totalQuestions} />;
+        return <FinalSummary score={scores.round1 + scores.round2} total={totalQuestions} time={time} />;
     default:
         return <div>Cargando juego...</div>;
   }

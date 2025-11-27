@@ -1,17 +1,26 @@
 "use client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { PartyPopper } from "lucide-react";
+import { PartyPopper, TimerIcon } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useState, useEffect } from "react";
+import { Separator } from "@/components/ui/separator";
 
 interface FinalSummaryProps {
   score: number;
   total: number;
+  time: number;
 }
 
-export default function FinalSummary({ score, total }: FinalSummaryProps) {
+function formatTime(seconds: number) {
+  if (typeof seconds !== 'number' || seconds < 0) return 'N/A';
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}m ${secs}s`;
+}
+
+export default function FinalSummary({ score, total, time }: FinalSummaryProps) {
   const percentage = total > 0 ? (score / total) * 100 : 0;
   const [progress, setProgress] = useState(0);
 
@@ -36,10 +45,18 @@ export default function FinalSummary({ score, total }: FinalSummaryProps) {
             <p className="text-muted-foreground">({score} de {total} correctas)</p>
             <Progress value={progress} className="w-full" />
         </div>
-        <Button asChild className="w-full mt-4">
+        <Separator className="my-4" />
+        <div className="flex items-center justify-center gap-2 text-lg font-medium text-muted-foreground">
+            <TimerIcon className="h-5 w-5" />
+            <span>Tiempo Final:</span>
+            <span className="font-bold text-foreground">{formatTime(time)}</span>
+        </div>
+      </CardContent>
+      <CardFooter>
+        <Button asChild className="w-full mt-2">
           <Link href="/">Volver al Inicio</Link>
         </Button>
-      </CardContent>
+      </CardFooter>
     </Card>
   );
 }
