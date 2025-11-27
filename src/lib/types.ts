@@ -4,6 +4,7 @@ export interface Participant {
   lastName: string;
   score: number;
   total: number;
+  time?: number; // Time in seconds
   createdAt: string;
 }
 

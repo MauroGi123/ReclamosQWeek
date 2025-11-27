@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { round1Data, round2Data, shuffle } from "@/lib/data";
 import GameRound from "./GameRound";
@@ -28,12 +28,17 @@ export function GameController() {
   const [shuffledRound1Data, setShuffledRound1Data] = useState<ShuffledData | null>(null);
   const [shuffledRound2Data, setShuffledRound2Data] = useState<ShuffledData | null>(null);
 
+  const [time, setTime] = useState(0);
+  const timerIsActive = useRef(false);
+
   const originalRound1Data = useMemo(() => round1Data, []);
   const originalRound2Data = useMemo(() => round2Data, []);
 
   useEffect(() => {
     if (!firstName || !lastName) {
       router.replace('/');
+    } else {
+      timerIsActive.current = true;
     }
   }, [firstName, lastName, router]);
   
@@ -50,6 +55,16 @@ export function GameController() {
     setShuffledRound2Data({ questions: r2Questions.map(q => ({id: q.id, text: q.motivo})), options: r2Options });
   }, [originalRound1Data, originalRound2Data]);
 
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (timerIsActive.current) {
+        interval = setInterval(() => {
+            setTime(prevTime => prevTime + 1);
+        }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timerIsActive.current]);
+
 
   if (!shuffledRound1Data || !shuffledRound2Data) {
     return <div className="flex-grow flex items-center justify-center">Cargando juego...</div>;
@@ -61,6 +76,7 @@ export function GameController() {
 
 
   const handleRound1Submit = (answers: Record<string, string>) => {
+    timerIsActive.current = false;
     setRound1Answers(answers);
     let score = 0;
     originalRound1Data.forEach(item => {
@@ -73,6 +89,7 @@ export function GameController() {
   };
 
   const handleRound2Submit = (answers: Record<string, string>) => {
+    timerIsActive.current = false;
     setRound2Answers(answers);
     let score = 0;
     originalRound2Data.forEach(item => {
@@ -86,10 +103,16 @@ export function GameController() {
   };
 
   const handleFinishGame = async () => {
+    timerIsActive.current = false;
     const finalScore = scores.round1 + scores.round2;
-    await saveResult(firstName, lastName, finalScore, totalQuestions);
+    await saveResult(firstName, lastName, finalScore, totalQuestions, time);
     setGameState("final");
   };
+
+  const startNextRound = () => {
+    timerIsActive.current = true;
+    setGameState("round2");
+  }
 
   if (!firstName || !lastName) {
     return <div>Redirigiendo...</div>;
@@ -104,6 +127,7 @@ export function GameController() {
           questions={shuffledRound1Questions}
           options={shuffledRound1Options}
           onSubmit={handleRound1Submit}
+          time={time}
         />
       );
     case "result1":
@@ -115,7 +139,7 @@ export function GameController() {
           correctAnswers={Object.fromEntries(originalRound1Data.map(item => [item.id, item.cantidad.toString()]))}
           score={scores.round1}
           total={originalRound1Data.length}
-          onNext={() => setGameState("round2")}
+          onNext={startNextRound}
         />
       );
     case "round2":
@@ -126,6 +150,7 @@ export function GameController() {
               questions={shuffledRound2Questions}
               options={shuffledRound2Options}
               onSubmit={handleRound2Submit}
+              time={time}
             />
         );
     case "result2":

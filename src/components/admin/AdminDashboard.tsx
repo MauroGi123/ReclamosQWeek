@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash2, Download, AlertCircle } from "lucide-react";
+import { Trash2, Download, AlertCircle, TimerIcon } from "lucide-react";
 import { deleteResult } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -45,6 +45,13 @@ function ClientFormattedDate({ dateString }: { dateString: string }) {
   }
 
   return <>{formattedDate}</>;
+}
+
+function formatTime(seconds: number) {
+  if (typeof seconds !== 'number' || seconds < 0) return 'N/A';
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}m ${secs}s`;
 }
 
 export function AdminDashboard({ initialResults }: AdminDashboardProps) {
@@ -95,6 +102,7 @@ export function AdminDashboard({ initialResults }: AdminDashboardProps) {
                   <TableHead>Nombre</TableHead>
                   <TableHead>Apellido</TableHead>
                   <TableHead className="text-center">Calificación</TableHead>
+                  <TableHead className="text-center">Tiempo</TableHead>
                   <TableHead>Fecha y Hora</TableHead>
                   <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
@@ -106,6 +114,9 @@ export function AdminDashboard({ initialResults }: AdminDashboardProps) {
                     <TableCell>{p.lastName}</TableCell>
                     <TableCell className="text-center">
                       {`${((p.score / p.total) * 100).toFixed(0)}% (${p.score}/${p.total})`}
+                    </TableCell>
+                    <TableCell className="text-center font-medium">
+                      {formatTime(p.time || 0)}
                     </TableCell>
                     <TableCell>
                       <ClientFormattedDate dateString={p.createdAt} />

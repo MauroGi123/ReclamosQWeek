@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { TimerIcon } from "lucide-react";
 
 interface Question {
   id: string;
@@ -21,9 +22,16 @@ interface GameRoundProps {
   questions: Question[];
   options: Option[];
   onSubmit: (answers: Record<string, string>) => void;
+  time: number;
 }
 
-export default function GameRound({ roundNumber, title, questions, options, onSubmit }: GameRoundProps) {
+function formatTime(seconds: number) {
+  const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+  const secs = (seconds % 60).toString().padStart(2, '0');
+  return `${mins}:${secs}`;
+}
+
+export default function GameRound({ roundNumber, title, questions, options, onSubmit, time }: GameRoundProps) {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   
   const handleSelect = (questionId: string, value: string) => {
@@ -40,8 +48,16 @@ export default function GameRound({ roundNumber, title, questions, options, onSu
   return (
     <Card className="w-full max-w-4xl shadow-lg animate-in fade-in duration-500">
       <CardHeader>
-        <CardTitle className="text-3xl font-bold">Ronda {roundNumber}</CardTitle>
-        <CardDescription>{title}</CardDescription>
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle className="text-3xl font-bold">Ronda {roundNumber}</CardTitle>
+            <CardDescription>{title}</CardDescription>
+          </div>
+          <div className="flex items-center gap-2 text-xl font-bold text-primary bg-primary/10 px-3 py-1.5 rounded-lg">
+            <TimerIcon className="h-6 w-6" />
+            <span>{formatTime(time)}</span>
+          </div>
+        </div>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-6">

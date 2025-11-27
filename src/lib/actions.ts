@@ -34,7 +34,8 @@ export async function saveResult(
   firstName: string,
   lastName: string,
   score: number,
-  total: number
+  total: number,
+  time: number,
 ) {
   try {
     const existingParticipant = await findParticipant(firstName, lastName);
@@ -43,7 +44,7 @@ export async function saveResult(
         console.warn(`Participant ${firstName} ${lastName} already exists. Not saving new score.`);
         return { success: false, message: 'Resultados ya guardados.' };
     }
-    await addParticipant({ firstName, lastName, score, total });
+    await addParticipant({ firstName, lastName, score, total, time });
     return { success: true };
   } catch (e) {
     console.error(e);
@@ -77,12 +78,13 @@ function escapeCsvCell(cell: string): string {
 
 export async function downloadResults() {
     const participants = await getParticipants();
-    const headers = ['Nombre', 'Apellido', 'Calificación', 'Fecha y Hora'];
+    const headers = ['Nombre', 'Apellido', 'Calificación', 'Tiempo (seg)', 'Fecha y Hora'];
     const rows = participants.map(p => 
         [
             escapeCsvCell(p.firstName),
             escapeCsvCell(p.lastName),
             escapeCsvCell(`${((p.score / p.total) * 100).toFixed(0)}% (${p.score}/${p.total})`),
+            escapeCsvCell(p.time ? p.time.toString() : 'N/A'),
             escapeCsvCell(new Date(p.createdAt).toLocaleString('es-ES'))
         ].join(';')
     );

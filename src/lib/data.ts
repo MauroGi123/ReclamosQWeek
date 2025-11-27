@@ -5,7 +5,7 @@ export const round1Data: Round1Item[] = [
   { id: 'r1-2', motivo: 'NTRM piedras en caja de lámina', cantidad: 2 },
   { id: 'r1-3', motivo: 'Papel dañado en caja de lámina', cantidad: 1 },
   { id: 'r1-4', motivo: 'NTRM sintético en caja de lámina', cantidad: 1 },
-  { id: 'r1-5', motivo: 'NTRM ave en caja de lámina', cantidad: 1 },
+  { id: 'r1-5', motivo: 'NTRM ave en caja de lámina.', cantidad: 1 },
 ];
 
 export const round2Data: Round2Item[] = [
@@ -13,7 +13,7 @@ export const round2Data: Round2Item[] = [
     id: 'r2-1',
     motivo: 'Mezcla de tabaco en trials',
     planDeAccion:
-      'Revisión y adecuación del procedimiento local y LUPs para cambio de marcas. Capacitación al personal respecto a la documentación revisada. Negociación con clientes para alineación de trials Crop 2026.',
+      'Revisión y adecuación del procedimiento local y LUPs para cambio de marcas.\nCapacitación al personal respecto a la documentación revisada.\nNegociación con clientes para alineación de trials Crop 2026.',
   },
   {
     id: 'r2-2',
@@ -25,7 +25,7 @@ export const round2Data: Round2Item[] = [
     id: 'r2-3',
     motivo: 'Papel dañado en caja de lámina',
     planDeAccion:
-      'Revisión del procedimiento local de gestión y trazabilidad de material de empaque. Revisión de circuitos de gestión de cajas entre producción-logística.',
+      'Revisión del procedimiento local de gestión y trazabilidad de material de empaque.\nRevisión de circuitos de gestión de cajas entre producción-logística.',
   },
   {
     id: 'r2-4',
@@ -34,7 +34,7 @@ export const round2Data: Round2Item[] = [
   },
   {
     id: 'r2-5',
-    motivo: 'NTRM ave en caja de lámina',
+    motivo: 'NTRM ave en caja de lámina.',
     planDeAccion: 'Identificación y definición de alternativas para control de plagas.',
   },
 ];
