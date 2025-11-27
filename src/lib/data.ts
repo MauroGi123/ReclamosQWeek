@@ -1,41 +1,41 @@
 import type { Round1Item, Round2Item } from '@/lib/types';
 
 export const round1Data: Round1Item[] = [
-  { id: 'r1-1', motivo: 'No conformidades en operaciones de trials', cantidad: 3 },
+  { id: 'r1-1', motivo: 'Mezcla de tabaco en trials', cantidad: 3 },
   { id: 'r1-2', motivo: 'NTRM piedras en caja de lámina', cantidad: 2 },
-  { id: 'r1-3', motivo: 'Papel dañado dentro de caja de lámina', cantidad: 1 },
+  { id: 'r1-3', motivo: 'Papel dañado en caja de lámina', cantidad: 1 },
   { id: 'r1-4', motivo: 'NTRM sintético en caja de lámina', cantidad: 1 },
-  { id: 'r1-5', motivo: 'NTRM paloma entera en caja de làmina', cantidad: 1 },
+  { id: 'r1-5', motivo: 'NTRM ave en caja de lámina', cantidad: 1 },
 ];
 
 export const round2Data: Round2Item[] = [
   {
     id: 'r2-1',
-    motivo: 'No conformidades en operaciones de trials',
+    motivo: 'Mezcla de tabaco en trials',
     planDeAccion:
-      'Negociación con clientes cantidad de trials y especificación\nCreación y aprobación de procedimiento\nAlineación de LUPs existentes\nCapacitaciòn del nuevo procedimiento',
+      'Revisión y adecuación del procedimiento local y LUPs para cambio de marcas. Capacitación al personal respecto a la documentación revisada. Negociación con clientes para alineación de trials Crop 2026.',
   },
   {
     id: 'r2-2',
     motivo: 'NTRM piedras en caja de lámina',
     planDeAccion:
-      'Se solicita a CTJ plan de acción al respecto\nSe da seguimiento a Plan de acción de CTJ',
+      'Seguimiento a CTJ sobre plan de acción para control de piedras en proceso.',
   },
   {
     id: 'r2-3',
-    motivo: 'Papel dañado dentro de caja de lámina',
+    motivo: 'Papel dañado en caja de lámina',
     planDeAccion:
-      'Capacitar a personal de logística y proceso involucrado en el empaque de producto\nReforzar trazabilidad en material de empaque\nRevisar LUPs faltantes para recepción, manejo y control de material de empaque',
+      'Revisión del procedimiento local de gestión y trazabilidad de material de empaque. Revisión de circuitos de gestión de cajas entre producción-logística.',
   },
   {
     id: 'r2-4',
     motivo: 'NTRM sintético en caja de lámina',
-    planDeAccion: 'No puede confirmarse NTRM origen Lerma',
+    planDeAccion: 'Se realizó trazabilidad del reclamo y no se logró confirmar que el NTRM tuviera origen en Lerma',
   },
   {
     id: 'r2-5',
-    motivo: 'NTRM paloma entera en caja de lámina',
-    planDeAccion: 'Pendiente confirmar acciones: cortina automática y colocación de red anti-aves',
+    motivo: 'NTRM ave en caja de lámina',
+    planDeAccion: 'Identificación y definición de alternativas para control de plagas.',
   },
 ];
 
