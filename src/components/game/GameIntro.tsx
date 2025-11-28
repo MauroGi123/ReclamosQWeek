@@ -24,7 +24,7 @@ export default function GameIntro({ onStart, playerName }: GameIntroProps) {
         <ul className="list-disc list-inside space-y-2 text-muted-foreground">
             <li>El juego consiste en 2 rondas de asociación.</li>
             <li>
-                <strong>Ronda 1:</strong> Deberás unir cada "motivo de reclamo" con la cantidad correcta de reclamos.
+                <strong>Ronda 1:</strong> Deberás unir cada "motivo de reclamo" con la cantidad correcta de reclamos recibidos.
             </li>
             <li>
                 <strong>Ronda 2:</strong> Unirás cada "motivo de reclamo" con su "plan de acción" correspondiente.
