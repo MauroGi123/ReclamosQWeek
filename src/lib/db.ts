@@ -34,8 +34,10 @@ export async function getParticipants(): Promise<Participant[]> {
 
 export async function findParticipant(firstName: string, lastName: string): Promise<Participant | undefined> {
   const participants = await readDb();
+  const cleanFirstName = firstName.trim().toLowerCase();
+  const cleanLastName = lastName.trim().toLowerCase();
   return participants.find(
-    (p) => p.firstName.toLowerCase() === firstName.toLowerCase() && p.lastName.toLowerCase() === lastName.toLowerCase()
+    (p) => p.firstName.trim().toLowerCase() === cleanFirstName && p.lastName.trim().toLowerCase() === cleanLastName
   );
 }
 

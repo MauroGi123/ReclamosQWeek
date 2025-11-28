@@ -1,15 +1,6 @@
 [
   {
-    "firstName": "Mauro",
-    "lastName": "Garcia",
-    "score": 1,
-    "total": 10,
-    "id": "1764198787258yays8j1la7l",
-    "createdAt": "2025-11-26T23:13:07.258Z",
-    "time": 0
-  },
-  {
-    "firstName": "Edinson ",
+    "firstName": "Edinson",
     "lastName": "Cavani",
     "score": 1,
     "total": 10,
@@ -27,7 +18,7 @@
     "time": 0
   },
   {
-    "firstName": "Cristian ",
+    "firstName": "Cristian",
     "lastName": "Castro",
     "score": 7,
     "total": 10,
