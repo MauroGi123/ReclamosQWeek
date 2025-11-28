@@ -1,0 +1,12 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Participants can be created by anyone, but only modified or deleted by authenticated admin users
+    match /participants/{participantId} {
+      allow read, create: if true;
+      allow update, delete: if false; // For now, nobody can update or delete
+    }
+  }
+}

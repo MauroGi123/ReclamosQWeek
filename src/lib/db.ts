@@ -1,60 +1,74 @@
-import fs from 'fs/promises';
-import path from 'path';
+'use server';
+import { initializeFirebase } from '@/firebase';
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+  where,
+  addDoc,
+  serverTimestamp,
+  deleteDoc,
+  doc,
+} from 'firebase/firestore';
 import type { Participant } from './types';
 
-const dbPath = path.join(process.cwd(), 'participants.json');
-
-async function readDb(): Promise<Participant[]> {
-  try {
-    const data = await fs.readFile(dbPath, 'utf-8');
-    return JSON.parse(data);
-  } catch (error: any) {
-    if (error.code === 'ENOENT') {
-      // File doesn't exist, return empty array and create it
-      await writeDb([]);
-      return [];
-    }
-    console.error("Error reading database:", error);
-    throw new Error("Could not read from database.");
-  }
-}
-
-async function writeDb(data: Participant[]): Promise<void> {
-  try {
-    await fs.writeFile(dbPath, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (error) {
-    console.error("Error writing to database:", error);
-    throw new Error("Could not write to database.");
-  }
+// Helper to get Firestore instance
+function getDb() {
+  return initializeFirebase().db;
 }
 
 export async function getParticipants(): Promise<Participant[]> {
-  return await readDb();
+  const db = getDb();
+  const participantsCol = collection(db, 'participants');
+  const snapshot = await getDocs(participantsCol);
+  return snapshot.docs.map(doc => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      // Firestore Timestamps need to be converted to strings for client components
+      createdAt: (data.createdAt?.toDate() ?? new Date()).toISOString(),
+    } as Participant;
+  });
 }
 
 export async function findParticipant(firstName: string, lastName: string): Promise<Participant | undefined> {
-  const participants = await readDb();
+  const db = getDb();
+  const participantsCol = collection(db, 'participants');
   const cleanFirstName = firstName.trim().toLowerCase();
   const cleanLastName = lastName.trim().toLowerCase();
-  return participants.find(
+  
+  // Firestore doesn't support case-insensitive queries directly on the server.
+  // We'll fetch all and filter, which is okay for a small number of participants.
+  // For a large dataset, this should be optimized (e.g., by storing lowercase names).
+  const allParticipants = await getParticipants();
+
+  return allParticipants.find(
     (p) => p.firstName.trim().toLowerCase() === cleanFirstName && p.lastName.trim().toLowerCase() === cleanLastName
   );
 }
 
 export async function addParticipant(participant: Omit<Participant, 'id' | 'createdAt'>): Promise<Participant> {
-  const participants = await readDb();
-  const newParticipant: Participant = {
+  const db = getDb();
+  const participantsCol = collection(db, 'participants');
+  
+  const newParticipantData = {
     ...participant,
-    id: new Date().getTime().toString() + Math.random().toString(36).substring(2), // Simple unique ID
-    createdAt: new Date().toISOString(),
+    createdAt: serverTimestamp(),
   };
-  participants.push(newParticipant);
-  await writeDb(participants);
-  return newParticipant;
+
+  const docRef = await addDoc(participantsCol, newParticipantData);
+  
+  return {
+    ...participant,
+    id: docRef.id,
+    createdAt: new Date().toISOString(), // Return a client-side friendly date
+  };
 }
 
 export async function deleteParticipant(id: string): Promise<void> {
-  let participants = await readDb();
-  participants = participants.filter((p) => p.id !== id);
-  await writeDb(participants);
+    const db = getDb();
+    const participantDoc = doc(db, 'participants', id);
+    await deleteDoc(participantDoc);
 }

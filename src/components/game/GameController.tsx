@@ -7,6 +7,7 @@ import GameRound from "./GameRound";
 import RoundResult from "./RoundResult";
 import FinalSummary from "./FinalSummary";
 import { saveResult } from "@/lib/actions";
+import { useToast } from "@/hooks/use-toast";
 
 type GameState = "intro" | "round1" | "result1" | "round2" | "result2" | "final";
 
@@ -18,6 +19,7 @@ interface ShuffledData {
 export function GameController() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { toast } = useToast();
   const firstName = searchParams.get("firstName") || "";
   const lastName = searchParams.get("lastName") || "";
   
@@ -111,7 +113,21 @@ export function GameController() {
   const handleFinishGame = async () => {
     timerIsActive.current = false;
     const finalScore = scores.round1 + scores.round2;
-    await saveResult(firstName, lastName, finalScore, totalQuestions, time);
+    const result = await saveResult(firstName, lastName, finalScore, totalQuestions, time);
+    
+    if (result.success) {
+      toast({
+        title: "¡Progreso Guardado!",
+        description: "Tus resultados han sido registrados exitosamente.",
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error al guardar",
+        description: result.message || "No se pudo guardar tu resultado. Intenta de nuevo.",
+      });
+    }
+
     setGameState("final");
   };
 

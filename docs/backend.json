@@ -1,0 +1,48 @@
+{
+    "entities": {
+        "participant": {
+            "title": "Participant",
+            "description": "Represents a participant in the game",
+            "type": "object",
+            "properties": {
+                "firstName": {
+                    "type": "string",
+                    "description": "First name of the participant"
+                },
+                "lastName": {
+                    "type": "string",
+                    "description": "Last name of the participant"
+                },
+                "score": {
+                    "type": "number",
+                    "description": "The participant's score"
+                },
+                "total": {
+                    "type": "number",
+                    "description": "Total possible score"
+                },
+                "time": {
+                    "type": "number",
+                    "description": "Time taken in seconds"
+                },
+                "createdAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The timestamp of when the participant was created"
+                }
+            },
+            "required": ["firstName", "lastName", "score", "total", "createdAt"]
+        }
+    },
+    "auth": {
+        "providers": []
+    },
+    "firestore": {
+        "/participants/{participantId}": {
+            "schema": {
+                "$ref": "#/backend/entities/participant"
+            },
+            "description": "Stores individual participant results."
+        }
+    }
+}

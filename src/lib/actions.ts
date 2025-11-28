@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { findParticipant, addParticipant, getParticipants, deleteParticipant as deleteDbParticipant } from './db';
 import type { Participant } from './types';
+import { toast } from '@/hooks/use-toast';
 
 type FormState = {
   error?: string;
@@ -46,9 +47,9 @@ export async function saveResult(
     }
     await addParticipant({ firstName, lastName, score, total, time });
     return { success: true };
-  } catch (e) {
+  } catch (e: any) {
     console.error(e);
-    return { success: false, message: 'No se pudo guardar el resultado.' };
+    return { success: false, message: e.message || 'No se pudo guardar el resultado.' };
   }
 }
 
